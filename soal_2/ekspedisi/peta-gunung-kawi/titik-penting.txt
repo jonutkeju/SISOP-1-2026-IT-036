@@ -1,5 +1,0 @@
-id,site_name,latitude,longitude
-001,Titik Berak Paman Mas Mba,-7.920000,112.450000
-002,Basecamp Mas Fuad,-7.920000,112.468100
-003,Gerbang Dimensi Keputih,-7.937960,112.468100
-004,Tembok Ratapan Keputih,-7.937960,112.450000
