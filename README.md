@@ -224,7 +224,9 @@ Posisi pusaka: -7.92898000000000000000, 112.45905000000000000000
 
 
 ### 3. Output
-Karena file `.sh` yang ada hanya mencetak output ke file `.txt`, maka output yang tertera hanya 2 yaitu `titik-penting.txt` dan `posisipusaka.txt`.
+Karena file `.sh` yang ada hanya mencetak output ke file `.txt`, maka output yang tertera hanya 2 yaitu `titik-penting.txt` dan `posisipusaka.txt`. 
+**(Mohon maaf sekali mas/mba asisten, tetapi beberapa elemen "kreatif" pada soal 2 ini mungkin sedikit berlebihan. Secara github ini bakal jadi portofolio nantinya, mungkin kedepannya bisa lebih safe for work)**
+
 ![alt text](assets/soal_2/output_2.png)
 
 
