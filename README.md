@@ -114,7 +114,7 @@ END {
 
 
 ### 3. Output
-![alt text](assets/soal_1/daemonize_server.png)
+![alt text](assets/soal_1/output_1.png)
 
 
 ## soal_2 : EKSPEDISI PESUGIHAN GUNUNG KAWI - MAS AMBA
