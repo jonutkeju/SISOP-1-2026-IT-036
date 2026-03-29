@@ -7,6 +7,33 @@
 | Kelas   | Sistem Operasi B            |
 | Asisten | SCRA                        |
 
+## Struktur Repository (tanpa assets)
+```
+.
+├── soal_1
+│   ├── KANJ.sh
+│   └── passenger.csv
+├── soal_2
+│   └── ekspedisi
+│       ├── peta-ekspedisi-amba.pdf
+│       └── peta-gunung-kawi
+│           ├── gsxtrack.json
+│           ├── nemupusaka.sh
+│           ├── parserkoordinat.sh
+│           ├── posisipusaka.txt
+│           └── titik-penting.txt
+└── soal_3
+    ├── data
+    │   └── penghuni.csv
+    ├── kost_slebew.sh
+    ├── log
+    │   └── tagihan.log
+    ├── rekap
+    │   └── laporan_bulanan.txt
+    └── sampah
+        └── history_hapus.csv
+```
+
 ## 1. [soal_1] : ARGO NGAWI JESGEJES
 
 ### A. Instruksi
@@ -121,6 +148,9 @@ awk -f KANJ.sh passenger.csv <opsi>
 ![alt text](assets/soal_1/output_1.png)
 
 
+### D. Kendala
+Tidak ada kendala
+
 ## 2. [soal_2] : EKSPEDISI PESUGIHAN GUNUNG KAWI - MAS AMBA
 
 ### A. Instruksi
@@ -231,6 +261,361 @@ Karena file `.sh` yang ada hanya mencetak output ke file `.txt`, maka output yan
 
 
 ![alt text](assets/soal_2/output_2.png)
+
+
+### 4. Kendala
+Tidak ada kendala
+
+
+## 1. [soal_3] : KOS SLEBEW AMBATUKAM
+
+### A. Instruksi
+1. Buat direktori `soal_3` dan file script `kost_slebew.sh` didalamnya.
+2. Buat menu interaktif (Amba menginput opsi 1 / 2 / 3 / 4 / 5 / 6 / 7). Beri pesan invalid input jika Amba menginput opsi diluar itu. Sesi opsi diakhiri dengan menekan `ENTER`
+3. Opsi `1` : Tambahkan Penghuni Baru
+   Minta input `Nama`, `Nomor Kamar`, `Harga Sewa`, `Tanggal Masuk` (format: "YYYY-MM-DD"), `Status Awal` (Aktif/Menunggak).
+   Pesan berhasil akan ditampilkan jika mengikuti format, dan pesan gagal jika invalid input.
+   Penghuni yang berhasil didaftar disimpan di `soal_3/data/penghuni.csv`.
+4. Opsi `2` : Hapus Penghuni
+   Minta input `Nama` penghuni yang akan dihapus.
+   Pesan berhasil akan ditampilkan jika penghuni ditemukan, dan pesan gagal jika nama tersebut tidak ditemukan.
+   Baris data penghuni yang dihapus disimpan di `soal_3/sampah/history_hapus.csv` dengan tambahan kolom `Tanggal Penghapusan` di
+   kolom paling belakang.
+5. Opsi `3` : Tampilkan Daftar Penghuni
+   Baca file `penghuni.csv` dan gunakan awk untuk mengoutput database mentah menjadi tabel rapi.
+   Di akhir tabel, buat juga rekap `Total Penghuni`, `Total Status Aktif`, dan `Total Status Menunggak`.
+6. Opsi `4` : Update Status Penghuni
+   Minta input `Nama` penghuni yang statusnya hendak diubah.
+   Mengiikuti format input soal, Amba diminta untuk menginput status baru (walaupun status hanya ada 2 jenis).
+   Pesan berhasil akan ditampilkan jika nama penghuni dan format status sudah pas, dan pesan gagal jika tidak.
+7. Opsi `5` : Cetak Laporan Keuangan
+   Buat script yang akan menghitung otomatis total pemasukan `Aktif` dan tunggakan `Menunggak`.
+   Mengikuti format input soal, setelahnya timbulkan juga informasi jumlah kamar terisi dan daftar penghuni menunggak
+   (dengan format : "Nomor, Nama, Tunggakan").
+   Laporan keuangan disimpan di `soal_3/rekap/laporan_bulanan.txt`.
+8. Opsi `6` : Kelola Cron Job
+   Jika opsi dijalankan, tampilkan submenu yang interaktif
+   Input `1` untuk melihat cron job yang aktif, `2` untuk mendaftarkan cron job (Hanya boleh 1 cron max), default pada jam 7 pagi,
+   `3` untuk menghapus cron job saat ini, `4` untuk kembali ke menu utama.
+   Pendaftaran cron job dilakukan dengan meminta input `jam`, lalu `menit`. Formatnya harus 2 digit.
+9. Opsi `7` : Keluar Program
+   Keluar menu utama dan kembali ke terminal.
+
+
+### B. Penjelasan
+Dimulai dengan setup : membuat direktori `soal_3` dan langsung membuat script `kost_slebew.sh`. Seperti pada `soal_2`, dimulai dengan line `#!/bin/bash` karena saya memakai `micro`.
+
+
+Berikut adalah kode untuk bagian menu interaktif.
+```sh
+while true; do
+    clear 
+    echo "██╗  ██╗ ██████╗ ███████╗████████╗ "
+    echo "██║  ██║██╔═══██╗██╔════╝╚══██╔══╝ "
+    echo "██████═╝██║   ██║███████╗   ██║    "
+    echo "██╔══██╗██║   ██║╚════██║   ██║    "
+    echo "██║  ██║╚██████╔╝███████║   ██║    "
+    echo "╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝    "
+    echo "=================================="
+    echo "1. Tambah Penghuni"
+    echo "2. Hapus Penghuni"
+    echo "3. Lihat Penghuni"
+    echo "4. Update Status Penghuni"
+    echo "5. Cetak Laporan Keuangan"
+    echo "6. Kelola Cron"
+    echo "7. Keluar Program"
+    echo "=================================="
+
+    echo -n "Pilih opsi: "
+    read pilihan
+
+    case $pilihan in
+        1)
+            tambah_penghuni
+            echo ""
+            echo "Tekan ENTER untuk kembali ke menu..."
+            read
+            ;;
+        2)
+            hapus_penghuni
+            echo ""
+            echo "Tekan ENTER untuk kembali ke menu..."
+            read
+            ;;
+        3)
+            lihat_penghuni
+            echo ""
+            echo "Tekan ENTER untuk kembali ke menu..."
+            read
+            ;;
+        4)
+            update_status
+            echo ""
+            echo "Tekan ENTER untuk kembali ke menu..."
+            read
+            ;;
+        5)
+            laporan_keuangan
+            echo ""
+            echo "Tekan ENTER untuk kembali ke menu..."
+            read
+            ;;
+        6)
+            kelola_cron
+            ;;
+        7)
+            echo "Mas Amba Keluar Program"
+            break
+            ;;
+        *)
+            echo "Pilihan tidak valid"
+            read -p "Tekan ENTER..."
+            ;;
+    esac
+done
+```
+1. Line `while` berfungsi sebagai pembuat loop tak hingga (sampai program di `break`).
+2. `read pilihan` akan mencatat opsi yang dipilih dan menyimpannya ke variabel `pilihan`
+3. Line `case` adalah blok *switch-case* berdasarkan variabel `pilihan`
+4. `read` kosong akan menunggu input `ENTER`
+5. Case `7)` memiliki `break` yang menjadi opsi 7 yaitu keluar dari program
+6. Case `*)` akan menangani input selain 1 / 2 / 3 / 4 / 5 / 6 / 7 sebagai pesan invalid input.
+7. `esac` dan `done` akan menutup blok `case` dan menutup loop `while` (blok `do`).
+
+
+Kode berikut adalah fungsi `tambah_penghuni` yang dipanggil jika menginput opsi `1`.
+```sh
+tambah_penghuni() {
+    echo "=== Tambah Penghuni ==="
+
+	# Perinputan Masuk Sini
+    echo -n "Nama: "
+    read nama
+    echo -n "Nomor Kamar: "
+    read kamar
+    echo -n "Harga Sewa: "
+    read harga
+    echo -n "Tanggal Masuk (YYYY-MM-DD): "
+    read tanggal
+    echo -n "Status (Aktif/Menunggak): "
+    read status
+
+    # Validasi Ini Itu
+    if ! [[ "$harga" =~ ^[0-9]+$ ]] || [ "$harga" -le 0 ]; then
+        echo "Error: Harga harus angka positif"
+        echo "Input invalid, ulangi proses penambahan penghuni"
+        return
+    fi
+    if ! date -d "$tanggal" >/dev/null 2>&1; then
+        echo "Error: Format tanggal tidak valid"
+        echo "Input invalid, ulangi proses penambahan penghuni"
+        return
+    fi
+    today=$(date +%Y-%m-%d)
+    if [[ "$tanggal" > "$today" ]]; then
+        echo "Error: Tanggal tidak boleh di masa depan"
+        echo "Input invalid, ulangi proses penambahan penghuni"
+        return
+    fi
+    if [[ "$status" != "Aktif" && "$status" != "Menunggak" ]]; then
+        echo "Error: Status hanya boleh Aktif atau Menunggak"
+        echo "Input invalid, ulangi proses penambahan penghuni"
+        return
+    fi
+    if awk -F',' -v k="$kamar" '$2==k {found=1} END{exit !found}' data/penghuni.csv; then
+        echo "Error: Nomor kamar sudah terisi"
+        echo "Input invalid, ulangi proses penambahan penghuni"
+        return
+    fi
+
+    # Ini untuk nyimpan
+    echo "$nama,$kamar,$harga,$tanggal,$status" >> data/penghuni.csv
+    echo "$nama berhasil terdaftar di kamar $kamar, dan berstatus $status"
+}
+```
+1. Seri line `echo` dan `read` pertama akan membaca input dan menyimpannya ke `nama`, `kamar`, `harga`, `tanggal`, `status`.
+2. Seri line `if` adalah validasi. Diantaranya `harga` harus positif, format `tanggal`, `tanggal` melebihi hari ini, format `status`, `kamar` yang sudah ditempati.
+3. Khusus blok `if` pengecekan ketersediaan nomor kamar, digunakan awk untuk membaca data `penghuni.csv`.
+4. Seri line `echo` diakhir akan mencetak data ke `penghuni.csv` jika berhasil dan mengoutput pesan berhasil.
+
+
+Kode berikut adalah fungsi `hapus_penghuni` yang dipanggil jika menginput opsi `2`.
+```sh
+hapus_penghuni() {
+    echo "=== Hapus Penghuni ==="
+
+	  # Input lekku
+    echo -n "Masukkan Nama Penghuni: "
+    read -r nama
+
+    # Cari orangnya
+    data=$(awk -F',' -v n="$nama" '$1==n {print $0}' data/penghuni.csv)
+
+	  # Nyari validasi :(
+    if [ -z "$data" ]; then
+        echo "Penghuni tidak ditemukan, coba lagi!"
+        return
+    fi
+
+    # Ambil nomor kamar
+    kamar=$(echo "$data" | awk -F',' '{print $2}')
+
+    # Copas tanggal sekarang
+    today=$(date +%Y-%m-%d)
+
+    # Simpan ke history
+    echo "$data,$today" >> sampah/history_hapus.csv
+
+    # Hapus dari file utama
+    awk -F',' -v n="$nama" '$1!=n' data/penghuni.csv > data/temp.csv
+    mv data/temp.csv data/penghuni.csv
+
+    echo "$nama tidak lagi menghuni kamar $kamar"
+}
+```
+1. Line `data` dan blok `if` akan mencari jika `nama` penghuni benar-benar ada atau tidak.
+2. Jika ada, data `nama` dan `kamar` akan dicopy sementara ke variabel yang sama pada fungsi ini.
+3. Tambahan variabel `today` untuk menentukan tanggal sekarang.
+4. `data` dan `today` dicopy ke file `sampah/history_hapus.csv`.
+5. `kamar` tidak dipakai (hanya dihapus) supaya tidak bentrok setelah penghapusan berhasil.
+6. Line awk penghapusan akan mencopy data baru (setelah penghuni dihapus) ke file sementara yang nantinya akan *overwrite* file `penghuni.csv`.
+
+
+Kode berikut adalah fungsi `lihat_penghuni` yang dipanggil jika menginput opsi `3`.
+```sh
+lihat_penghuni() {
+    echo "=== Daftar Penghuni ==="
+    echo ""
+
+	# Isinya cuma Peroutputan
+    awk -F',' '
+    BEGIN {
+        printf "%-5s %-20s %-10s %-15s %-12s\n", "No", "Nama", "Kamar", "Harga", "Status"
+        print "---------------------------------------------------------------"
+    }
+    NR > 1 {
+        no++
+        printf "%-5d %-20s %-10s %-15s %-12s\n", no, $1, $2, $3, $5
+
+        total++
+        if ($5 == "Aktif") aktif++
+        else if ($5 == "Menunggak") menunggak++
+    }
+    END {
+        print "---------------------------------------------------------------"
+        printf "Total Penghuni     : %d\n", total
+        printf "Status Aktif       : %d\n", aktif
+        printf "Status Menunggak   : %d\n", menunggak
+    }
+    ' data/penghuni.csv
+}
+```
+Fungsi ini cukup *straightforward* karena hanya berisi perinputan. Namun dibaca dengan line `awk -f',' '_' data/penghuni.csv`. Sangat mirip dengan format pemanggilan pada `soal_1`, bedanya kali ini pada script.
+
+
+Kode berikut adalah fungsi `lihat_penghuni` yang dipanggil jika menginput opsi `4`.
+```sh
+update_status() {
+    echo "=== Update Status Penghuni ==="
+
+    echo -n "Nama Penghuni: "
+    read -r nama
+
+    echo -n "Status Baru (Aktif/Menunggak): "
+    read -r status_baru
+
+    # Valid ga banh
+    if [[ "$status_baru" != "Aktif" && "$status_baru" != "Menunggak" ]]; then
+        echo "Error: Status hanya boleh Aktif atau Menunggak"
+        echo "Input invalid, ulangi proses update status"
+        return
+    fi
+
+    # Valid ga banh pt 2
+    if ! awk -F',' -v n="$nama" '$1==n {found=1} END{exit !found}' data/penghuni.csv; then
+        echo "Penghuni tidak ditemukan, coba lagi!"
+        return
+    fi
+
+    # Update status pake awk
+    awk -F',' -v n="$nama" -v s="$status_baru" '
+    BEGIN {OFS=","}
+    NR==1 {print; next}
+    {
+        if ($1 == n) {
+            $5 = s
+        }
+        print
+    }
+    ' data/penghuni.csv > data/temp.csv
+
+    mv data/temp.csv data/penghuni.csv
+
+    echo "$nama berhasil diupdate menjadi status $status_baru"
+}
+```
+Kode berikut secara sintaks juga mirip dengan fungsi `hapus_penghuni` sebelumnya.
+
+
+Kode berikut adalah fungsi `laporan_keuangan` yang dipanggil jika menginput opsi `5`.
+```sh
+laporan_keuangan() {
+    echo "=== Laporan Keuangan ==="
+
+    bulan=$(date +%m)
+    tahun=$(date +%Y)
+
+	# Peroutputan lagi
+    awk -F',' -v bln="$bulan" -v thn="$tahun" '
+    BEGIN {
+        pemasukan=0
+        tunggakan=0
+        kamar=0
+        idx=0
+    }
+    NR > 1 {
+        kamar++
+
+        if ($5 == "Aktif") {
+            pemasukan += $3
+        } 
+        else if ($5 == "Menunggak") {
+            tunggakan += $3
+            idx++
+            nama[idx] = $1
+            hutang[idx] = $3
+        }
+    }
+    END {
+        print "============================"
+        print "Laporan Bulan " bln " Tahun " thn
+        print "Total Pemasukan : " pemasukan
+        print "Total Tunggakan : " tunggakan
+        print "Kamar Terisi    : " kamar
+        print "------------------------------------------------"
+        print "Daftar Penghuni Menunggak"
+
+        for (i = 1; i <= idx; i++) {
+            printf "%d. %s : %s\n", i, nama[i], hutang[i]
+        }
+
+        print "============================"
+    }
+    ' data/penghuni.csv > rekap/laporan_bulanan.txt
+
+    echo ""
+    cat rekap/laporan_bulanan.txt
+    echo ""
+    echo "Laporan berhasil disimpan ke rekap/laporan_bulanan.txt"
+}
+```
+
+
+
+
+
+
+
 
 
 
