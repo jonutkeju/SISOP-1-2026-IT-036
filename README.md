@@ -698,11 +698,18 @@ kelola_cron() {
 
 
 ### C. Output
-placeholder
+Output dimulai dengan terlebih dahulu menjalankan `./kost_slebew.sh` pada terminal untuk masuk menu utama, lalu pilih opsi `1`
+untuk mendaftarkan penghuni bernama Jonathan.
+*Mohon izin mas/mba asisten, contoh output dan alurnya diketik di word supaya rapi*
+
+
+![alt text](assets/soal_3/output_3s1.png)
+![alt text](assets/soal_3/output_3s2.png)
+![alt text](assets/soal_3/output_3s3.png)
 
 
 ### D. Kendala
-Tidak ada kendala
+Pada saat challenge, soal challenge memiliki instruksi untuk membuat cron job. Tetapi saat opsi `6` lalu opsi `3` dijalankan, cron job challenge ikut dihapus. Mungkin untuk repo ini masih bisa dibilang aman karena hanya `soal_3` yang membutuhkan cron job dan jumlahnya hanya 1.
 
 
 
