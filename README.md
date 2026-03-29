@@ -253,7 +253,7 @@ Posisi pusaka: -7.92898000000000000000, 112.45905000000000000000
 ```
 
 
-### 3. Output
+### C. Output
 Karena file `.sh` yang ada hanya mencetak output ke file `.txt`, maka output yang tertera hanya 2 yaitu `titik-penting.txt` dan `posisipusaka.txt`. 
 
 
@@ -263,7 +263,7 @@ Karena file `.sh` yang ada hanya mencetak output ke file `.txt`, maka output yan
 ![alt text](assets/soal_2/output_2.png)
 
 
-### 4. Kendala
+### D. Kendala
 Tidak ada kendala
 
 
@@ -609,9 +609,100 @@ laporan_keuangan() {
     echo "Laporan berhasil disimpan ke rekap/laporan_bulanan.txt"
 }
 ```
+Opsi `5` juga mirip dengan opsi `3` namun memakai awk untuk mengakses `bulan` dan `tahun`.
 
 
+Kode berikut adalah fungsi `kelola_cron` yang dipanggil jika menginput opsi `6`.
+```sh
+if [[ "$1" == "--check-tagihan" ]]; then
+    mkdir -p log
+    now=$(date "+%Y-%m-%d %H:%M:%S")
 
+    awk -F',' -v waktu="$now" '
+    NR > 1 && $5 == "Menunggak" {
+        printf "[%s] TAGIHAN: %s (Kamar %s) – Menunggak Rp%s\n",
+        waktu, $1, $2, $3
+    }
+    ' data/penghuni.csv >> log/tagihan.log
+
+    exit 0
+fi
+# Yang ini fungsi cronnya
+kelola_cron() {
+    while true; do
+        clear
+        echo "=== KELOLA CRON ==="
+        echo "1. Lihat Cron Job Aktif"
+        echo "2. Tambahkan Cron Job Pengingat"
+        echo "3. Hapus Cron Job Pengingat"
+        echo "4. Kembali"
+        echo "======================="
+
+        echo -n "Pilih opsi: "
+        read pilihan
+
+        case $pilihan in
+            1)
+                echo "Cron aktif:"
+                crontab -l 2>/dev/null | grep kost_slebew || echo "Tidak ada cron aktif"
+                read -p "ENTER..."
+                ;;
+
+            2)
+                echo -n "Masukkan jam (00-23): "
+                read jam
+
+                echo -n "Masukkan menit (00-59): "
+                read menit
+
+                # Validasi 2 digit
+                if ! [[ "$jam" =~ ^[0-9]{2}$ ]] || ! [[ "$menit" =~ ^[0-9]{2}$ ]]; then
+                    echo "Format jam/menit harus 2 digit!"
+                    read -p "ENTER..."
+                    continue
+                fi
+
+                script_path=$(realpath kost_slebew.sh)
+
+                # overwrite cron karna cuma boleh satu
+                echo "$menit $jam * * * $script_path --check-tagihan" | crontab -
+
+                echo "Cron berhasil diset pada $jam:$menit"
+                read -p "ENTER..."
+                ;;
+
+            3)
+                crontab -l 2>/dev/null | grep -v kost_slebew | crontab -
+                echo "Cron berhasil dihapus"
+                read -p "ENTER..."
+                ;;
+
+            4)
+                break
+                ;;
+
+            *)
+                echo "Pilihan tidak valid"
+                read -p "ENTER..."
+                ;;
+        esac
+    done
+}
+```
+1. Blok `if` sebelum fungsi untuk memanggil `--check-tagihan` yang akan mengoutput penghuni menunggak serta tagihannya. `exit 0` diperlukan supaya tidak kembali ke menu utama selagi belum memilih opsi `4` pada looping submenu.
+2. Opsi `1` akan mengambil cron dari `kost_slebew.sh`. Jika tidak ada `||` akan mengoutput pesan "tidak ada cron terdaftar".
+3. Opsi `2` memiliki bagian input (Line `echo`), validasi (Line `if`) yang mewajibkan format 2 digit, dan overwrite (Line `echo` terakhir). Overwrite dilakukan dengan mengambill data hasil input user langsung ke cron saat ini.
+4. Opsi `3` akan menghapus cron dengan `grep -v`.
+5. Opsi `4` akan kembali ke menu utama.
+6. Sama seperti pada menu utama, bagian `*)` hanya untuk handling input invalid.
+
+
+### C. Output
+placeholder
+
+
+### D. Kendala
+Tidak ada kendala
 
 
 
